@@ -1,0 +1,43 @@
+#plugin information
+id: SearchEngine
+name: SearchEngine
+version: 0.0.1
+
+#about this plugin
+description: <__trans phrase="Searching by search engines.">
+author_name: <__trans phrase="toi-planning">
+author_link: http://tec.toi-planning.net/
+plugin_link: http://tec.toi-planning.net/mt/searchengine/
+doc_link: http://tec.toi-planning.net/mt/searchengine/
+
+# settings
+system_config_template: system_config.tmpl
+settings:
+    yahoo_appid:
+
+#Localization
+l10n_class: SearchEngine::L10N
+
+# tag
+tags:
+    help_url: http://tec.toi-planning.net/mt/searchengine/tags#%t
+    block:
+        IfSearchEngineIsEntry: $SearchEngine::SearchEngine::Template::_hdlr_is_entry
+        IfSearchEngineIsPage: $SearchEngine::SearchEngine::Template::_hdlr_is_page
+        IfSearchEngineIsAsset: $SearchEngine::SearchEngine::Template::_hdlr_is_asset
+        IfSearchEngineIsUnkown?: $SearchEngine::SearchEngine::Template::_hdlr_is_unkown
+    function:
+        SearchEngineResultTitle: $SearchEngine::SearchEngine::Template::_hdlr_result_title
+        SearchEngineResultURL: $SearchEngine::SearchEngine::Template::_hdlr_result_url
+        SearchEngineResultContent: $SearchEngine::SearchEngine::Template::_hdlr_result_content
+        SearchEngineSearchEngine: $SearchEngine::SearchEngine::Template::_hdlr_search_engine
+        SearchEngineSearchType: $SearchEngine::SearchEngine::Template::_hdlr_search_type
+        SearchEngineSearchFormat: $SearchEngine::SearchEngine::Template::_hdlr_search_format
+        SearchEnginePoweredBy: $SearchEngine::SearchEngine::Template::_hdlr_powered_by
+        SearchEngineEstimatedTotal: $SearchEngine::SearchEngine::Template::_hdlr_estimated_total
+
+applications:
+    new_search:
+        methods:
+            google: $SearchEngine::SearchEngine::Search::Google::process
+            yahoo: $SearchEngine::SearchEngine::Search::Yahoo::process
