@@ -94,6 +94,15 @@ sub context_script {
 	$cgipath . $script . '?' . $q->query_string;
 }
 
+sub default_type {
+    my $app = shift;
+	($app->supported_types)[0];
+}
+
+sub supported_types {
+	('web', 'images');
+}
+
 sub web {
 	();
 }
@@ -143,51 +152,52 @@ sub execute {
 		'results' => [],
 	};
 
-	if (grep($type eq $_, 'web', 'images')) {
-		$res = $app->$type(@_);
-		foreach my $r (@{ $res->{'results'} }) {
-			my $url = $r->{'url'};
+	my ($search_type) = grep($type eq $_, $app->supported_types);
+	$search_type ||= $app->default_type;
 
-			my ($rel_url) = ( $url =~ m|^(?:[^:]*\:\/\/)?[^/]*(.*)| );
-			$rel_url =~ s|//+|/|g;
+	$res = $app->$search_type(@_);
+	foreach my $r (@{ $res->{'results'} }) {
+		my $url = $r->{'url'};
 
-			{
-				my $terms = {
-					'url' => $rel_url,
-				};
-				if ($rel_url =~ m{/$}) {
-					$terms->{'url'} = {'like' => $rel_url . 'index%'};
-				}
-				$r->{'fileinfo'} = MT->model('fileinfo')->load($terms);
-				if ($r->{'fileinfo'}) {
-					$r->{'entry'} = MT->model('entry')->load({
-						'id' => $r->{'fileinfo'}->entry_id,
-					});
-				}
+		my ($rel_url) = ( $url =~ m|^(?:[^:]*\:\/\/)?[^/]*(.*)| );
+		$rel_url =~ s|//+|/|g;
+
+		{
+			my $terms = {
+				'url' => $rel_url,
+			};
+			if ($rel_url =~ m{/$}) {
+				$terms->{'url'} = {'like' => $rel_url . 'index%'};
 			}
+			$r->{'fileinfo'} = MT->model('fileinfo')->load($terms);
+			if ($r->{'fileinfo'}) {
+				$r->{'entry'} = MT->model('entry')->load({
+					'id' => $r->{'fileinfo'}->entry_id,
+				});
+			}
+		}
 
-			if (! $r->{'entry'}) {
-				my $static_path = MT->instance->static_path;
-				foreach my $id ($app->blog_ids) {
-					my $blog = MT->model('blog')->load($id);
+		if (! $r->{'entry'}) {
+			my $static_path = MT->instance->static_path;
+			foreach my $id ($app->blog_ids) {
+				my $blog = MT->model('blog')->load($id);
 
-					my $site_url = $blog->site_url;
-					my $archive_url = $blog->archive_url;
+				my $site_url = $blog->site_url;
+				my $archive_url = $blog->archive_url;
 
-					my @urls = ($url) x 4;
-					$urls[1] =~ s/^$static_path/%s/;
-					$urls[2] =~ s/^$site_url/%s/;
-					$urls[3] =~ s/^$archive_url/%s/;
+				my @urls = ($url) x 4;
+				$urls[1] =~ s{^$static_path}{/%s};
+				$urls[2] =~ s{^$site_url}{%r/};
+				$urls[3] =~ s{^$archive_url}{%a/};
 
-					$r->{'asset'} = MT->model('asset')->load({
-						'class' => '*',
-						'url' => \@urls,
-						'blog_id' => $blog->id,
-					});
+				$r->{'asset'} = MT->model('asset')->load({
+					'class' => '*',
+					'url' => \@urls,
+					'blog_id' => $blog->id,
+				});
 
-					if ($r->{'asset'}) {
-						last;
-					}
+				if ($r->{'asset'}) {
+					last;
 				}
 			}
 		}
