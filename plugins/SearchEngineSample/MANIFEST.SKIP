@@ -4,7 +4,6 @@
 #^META.yml$
 #^blib/
 #~$
-^plugins/
 
 
 # Avoid version control files.

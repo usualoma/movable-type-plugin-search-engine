@@ -1,0 +1,16 @@
+#plugin information
+id: SearchEngineTest
+name: SearchEngineTest
+version: 1.0
+
+#about this plugin
+description: <__trans phrase="Searching by search engines. (Test)">
+author_name: <__trans phrase="toi-planning">
+author_link: http://tec.toi-planning.net/
+plugin_link: http://tec.toi-planning.net/mt/searchengine/
+doc_link: http://tec.toi-planning.net/mt/searchengine/
+
+applications:
+    new_search:
+        methods:
+            test: $SearchEngineTest::SearchEngineTest::process
