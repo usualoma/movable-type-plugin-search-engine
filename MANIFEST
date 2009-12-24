@@ -7,3 +7,4 @@ lib/SearchEngine/Search/Google.pm
 lib/SearchEngine/Search/Yahoo.pm
 lib/SearchEngine/Template.pm
 LICENSE
+tmpl/system_config.tmpl
