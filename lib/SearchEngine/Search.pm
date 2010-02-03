@@ -157,12 +157,14 @@ sub execute {
 
 	$res = $app->$search_type(@_);
 	foreach my $r (@{ $res->{'results'} }) {
-		my $url = $r->{'url'};
+		next if $r->{'entry'} || $r->{'asset'};
 
-		my ($rel_url) = ( $url =~ m|^(?:[^:]*\:\/\/)?[^/]*(.*)| );
-		$rel_url =~ s|//+|/|g;
+		my $url = $r->{'url'} if $r->{'url'};
 
 		{
+			my ($rel_url) = ( $url =~ m|^(?:[^:]*\:\/\/)?[^/]*(.*)| );
+			$rel_url =~ s|//+|/|g;
+
 			my $terms = {
 				'url' => $rel_url,
 			};
